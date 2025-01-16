@@ -1,0 +1,4 @@
+WimmyWamWamWozzle () {
+    argArr=("$@")
+    . ~/Slurms_MacKenzie.sh ${argArr[*]}
+}
