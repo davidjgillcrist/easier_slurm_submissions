@@ -8,15 +8,21 @@ Download the script `Slurms_MacKenzie.sh` into your home directory, e.g. `~ `. I
 
 Once both of these things are accomplished, you can run the following from any directory. Note: If you are not reading this in Markup then please do not put astericks around your values/names that follow the tags.
 
-> WimmyWamWamWozzle --file *name of script* --node *num requested nodes* --ntasks *num processors across all nodes* --mem *amount of RAM in MB* --time *num reserved hours* --gpus *num requested GPUs* --gpuname *name of type of GPU requested* --partition *name of partition used* --jobname *name of job being run*
+```
+WimmyWamWamWozzle --file *name of script* --node *num requested nodes* --ntasks *num processors across all nodes* --mem *amount of RAM in MB* --time *num reserved hours* --gpus *num requested GPUs* --gpuname *name of type of GPU requested* --partition *name of partition used* --jobname *name of job being run*
+```
 
 This can be also be run using the shortened tags
 
-> WimmyWamWamWozzle -f *name of script*  -N *num requested nodes* -n *num processors across all nodes* -m *amount of RAM in MB* -t *num reserved hours* -g *num requested GPUs* -G *name of type of GPU requested* -p *name of partition used* -j *name of job being run*
+```
+WimmyWamWamWozzle -f *name of script*  -N *num requested nodes* -n *num processors across all nodes* -m *amount of RAM in MB* -t *num reserved hours* -g *num requested GPUs* -G *name of type of GPU requested* -p *name of partition used* -j *name of job being run*
+```
 
 The order of the tags don't matter, so long as the correct value/name follows it. For instance the above command can equivalently be written as
 
-> WimmyWamWamWozzle -N *num requested nodes* -f *name of script* -p *name of partition used* -j *name of job being run* -g *num requested GPUs* -t *num reserved hours* -m *amount of RAM in MB* -n *num processors across all nodes* -G *name of type of GPU requested*
+```
+WimmyWamWamWozzle -N *num requested nodes* -f *name of script* -p *name of partition used* -j *name of job being run* -g *num requested GPUs* -t *num reserved hours* -m *amount of RAM in MB* -n *num processors across all nodes* -G *name of type of GPU requested*
+```
 
 These values are then written into a file called `ActualSlurmSubmitter.slurm` in the following way:
 ```
