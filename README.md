@@ -27,22 +27,26 @@ The order of the tags doesn't matter, so long as the correct value/name follows 
 WimmyWamWamWozzle -N *num requested nodes* -f *name of script* -p *name of partition used* -j *name of job being run* -g *num requested GPUs* -t *num reserved hours* -m *amount of RAM in MB* -n *num processors across all nodes* -G *name of type of GPU requested*
 ```
 
-These values are then written into a file called `ActualSlurmSubmitter.slurm` in the following way:
+As an example, if I were to give the following arguments to `WimmyWamWamWozzle`
 ```
-#!/bin/sh\n"
+WimmyWamWamWozzle -f runme.sh  -N 3 -n 24 -m 32000 -t 48 -g 1 -G M2050 -p single-partition -j scicomp00
+```
+then these values would be written written into a file called `ActualSlurmSubmitter.slurm` in the following way:
+```
+#!/bin/sh
 
-#SBATCH --output=*homedir*/outfiles/slurm-%j.out
-#SBATCH --error=*homedir*/outfiles/slurm-%j.err
+#SBATCH --output=/home/user/outfiles/slurm-%j.out
+#SBATCH --error=/home/user/outfiles/slurm-%j.err
 
-#SBATCH --nodes=*num requested nodes*
-#SBATCH --ntasks-per-node=*num of processors across all nodes*
-#SBATCH --partition=*name of partition used* 
-#SBATCH --mem=*amount of RAM in MB*
-#SBATCH --time=${*num of reserved hours*}:00:00
-#SBATCH --job-name=*name of job being run*
-#SBATCH --gres=gpu:*name of type of gpu requested*:*num of requested GPUs*
+#SBATCH --nodes=3
+#SBATCH --ntasks-per-node=24
+#SBATCH --partition=single-partition
+#SBATCH --mem=32000
+#SBATCH --time=${48}:00:00
+#SBATCH --job-name=scicomp00
+#SBATCH --gres=gpu:M2050:1
 
-. $PWD/$file
+. /path/to/my/script/runme.sh
 ```
 The following is then run from your home directory: `sbatch ~/ActualSlurmSubmitter.slurm`
 
