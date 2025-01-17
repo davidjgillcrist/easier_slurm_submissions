@@ -41,7 +41,7 @@ for arg in "$@"; do
         printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n'\
                 "-f, --file:      Pass a file to run via Slurm. Not optional must be passed."\
                 "-N, --node:      The number of nodes to run on. Default is 1."\
-                "-n, --ntasks:    The number of processors used across all nodes. Default is 4."\
+                "-n, --ntasks:    The number of processors used per node. Default is 4."\
                 "-m, --mem:       The number of megabytes of RAM reserved for the submission. Default is 8192 MB (8 GB)."\
                 "-t, --time:      The number of hours reservered for the submission. Default is 4 hours."\
                 "-g, --gpus:      The number of GPUs to reserve. Default is 0."\
