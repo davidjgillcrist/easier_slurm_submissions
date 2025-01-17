@@ -58,6 +58,7 @@ At any point you can also run `WimmyWamWamWozzle -h` and it will print the follo
 
 ### If you're wondering what the significance of the names Slurms MacKenzie and Wimmy Wam Wam Wozzle is, then I would kindly ask you to watch the show Futurama. :)
 
-![slurms-2_medium2-3445876868](https://github.com/user-attachments/assets/6b2aa4b0-c6f6-4cc8-b10b-e26dc682836a)
+![slurms_mackenzie](https://github.com/user-attachments/assets/c5e54cf0-4267-47da-8917-701a49067882)
+
 
 
