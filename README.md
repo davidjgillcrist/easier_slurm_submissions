@@ -6,7 +6,7 @@ This is a script that allows for a quick-and-easy way to submit jobs that use th
 
 Download the script `Slurms_MacKenzie.sh` into your home directory, e.g. `~ `. It's also necessary to paste the contents of the file `WimmyWamWamWozzle` into your `.bashrc` file. Make sure to reload you `.bashrc` file again otherwise your system won't recognize the command.
 
-Once both of these things are accomplished, you can run the following from any directory. Note: If you are not reading this in Markup then please do not put astericks around your values/names that follow the tags.
+Once both of these things are accomplished, you can run the following from any directory. Note: Please do not put astericks around your values/names that follow the tags, just write the name/value as it is.
 
 ```
 WimmyWamWamWozzle --file *name of script* --node *num requested nodes* --ntasks *num processors across all nodes* --mem *amount of RAM in MB* --time *num reserved hours* --gpus *num requested GPUs* --gpuname *name of type of GPU requested* --partition *name of partition used* --jobname *name of job being run*
