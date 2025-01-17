@@ -4,7 +4,7 @@
 
 This is a script that allows for a quick-and-easy way to submit jobs that use the job scheduling system called Slurm. All the specifications of your job (e.g. the number of cpus requested, the amount of time needed, etc) are submitted with a preceding "tag" that writes these values into an actual Slurm submission script before that is then submitted via Slurm. 
 
-Download the script `Slurms_MacKenzie.sh` into your home directory, e.g. `~ `. It's also necessary to paste the contents of the file `WimmyWamWamWozzle` into your `.bashrc` file. Make sure to reload you `.bashrc` file again otherwise your system won't recognize the command.
+Download the script `Slurms_MacKenzie.sh` into your home directory, e.g. `~`. It's also necessary to paste the contents of the file `WimmyWamWamWozzle` into your `.bashrc` file. Make sure to reload you `.bashrc` file again otherwise your system won't recognize the command.
 
 Once both of these things are accomplished, you can run the following from any directory. **NOTE:** 
 ```diff
