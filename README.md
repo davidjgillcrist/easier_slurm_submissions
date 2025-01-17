@@ -8,7 +8,7 @@ Download the script `Slurms_MacKenzie.sh` into your home directory, e.g. `~ `. I
 
 Once both of these things are accomplished, you can run the following from any directory. **NOTE:** 
 ```diff
--Please do not put astericks around your values/names that follow the tags, just write the name/value as it is.
+- Regarding the following code lines, please do not put astericks around your values/names that follow the tags. Those are just there for emphasis. Only write the name/value as it is.
 ```
 ```
 WimmyWamWamWozzle --file *name of script* --node *num requested nodes* --ntasks *num processors across all nodes* --mem *amount of RAM in MB* --time *num reserved hours* --gpus *num requested GPUs* --gpuname *name of type of GPU requested* --partition *name of partition used* --jobname *name of job being run*
