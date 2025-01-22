@@ -48,7 +48,7 @@ then these values would be written written into a file called `ActualSlurmSubmit
 
 . /path/to/my/script/runme.sh
 ```
-The following is then run from your home directory: `sbatch ~/ActualSlurmSubmitter.slurm`
+The following is then run from your `easier_slurm_submissions`  directory: `sbatch ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm`
 
 At any point you can also run `WimmyWamWamWozzle -h` and it will print the following:
 ```
