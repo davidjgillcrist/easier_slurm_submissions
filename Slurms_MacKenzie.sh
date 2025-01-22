@@ -39,7 +39,7 @@ arguments=( "$@" )
 for arg in "$@"; do
     case $arg in
         -h|--help)
-        printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n'\
+        printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n'\
                 "-f, --file:      Pass a file to run via Slurm. Not optional must be passed."\
                 "-N, --node:      The number of nodes to run on. Default is 1."\
                 "-n, --ntasks:    The number of processors used across all nodes. Default is 4."\
@@ -49,16 +49,16 @@ for arg in "$@"; do
                 "-G, --gpuname:   The name of the type of GPU being requested. Default is M2050."\
                 "-p, --partition: The name of the partition that the job is being sent to. Default is cpu."\
                 "-j, --jobname:   The name of the job as shown on squeue. Default is job-%j."
-        exit
+        return
            ;;
         -f|--file)
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
-            file=$option
+            shfile=$option
             NoFileFlag=0
         fi
           ;;
@@ -66,8 +66,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             node=$option
         fi
@@ -76,8 +76,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             ntasks=$option
         fi
@@ -86,8 +86,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             mem=$option
         fi
@@ -96,8 +96,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             hours=$option
         fi
@@ -106,8 +106,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             jobname="${option}"
         fi
@@ -116,8 +116,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             gpus=$option
         fi
@@ -126,8 +126,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             gpuname=$option
         fi
@@ -136,8 +136,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             partition=$option
         fi
@@ -145,8 +145,8 @@ for arg in "$@"; do
 done
 
 if [[ $NoFileFlag -eq 1 ]]; then
-    echo "No file was passed. Please include a file after the flag --file or -f. Script has been exited."
-    exit
+    echo "No file was passed. Please include a file after the flag --file or -f. Script has been returned."
+    return
 fi
 
 echo -e "#!/bin/sh\n" > ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
@@ -162,7 +162,7 @@ echo "#SBATCH --time=${hours}:00:00" >> ~/easier_slurm_submissions/ActualSlurmSu
 echo "#SBATCH --job-name=$jobname" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
 echo -e "#SBATCH --gres=gpu:$gpuname:$gpus\n" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
 
-echo ". $PWD/$file" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
+echo ". $PWD/$shfile" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
 
 sbatch ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
 

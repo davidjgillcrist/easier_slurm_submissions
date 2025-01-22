@@ -40,7 +40,7 @@ arguments=( "$@" )
 for arg in "$@"; do
     case $arg in
         -h|--help)
-        printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n'\
+        printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n'\
                 "-f, --file:           Pass a file to MATLAB file that will run in 'chunks' to several nodes. Not optional must be passed."\
                 "-n, --ntasks:         The number of processors used across all nodes. Default is 24."\
                 "-m, --mem:            The number of gigabytes of RAM reserved for the submission. Default is 96 GB."\
@@ -51,15 +51,15 @@ for arg in "$@"; do
                 "-j, --jobgroup:       The name of the describing the group of jobs being submitted as shown on squeue. Default is djg."\
                 "-T, --total-chunks:   The total number of chunks that the MATLAB script will be split up into. Defualt is 1."\
                 "-S, --starting-chunk: The index of the first chunk to be run out of the total-chunks. Omits running chunks with indices < starting-chunk. Default is 1."\
-                "-L, --last-chunk:     The index of the last chunk to be run out of the total-chunks. Omits running chunks with indices > last-chunk. Default is 1."\
-        exit
+                "-L, --last-chunk:     The index of the last chunk to be run out of the total-chunks. Omits running chunks with indices > last-chunk. Default is 1."
+        return
            ;;
         -f|--file)
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             runfilename=${option::-2}
             NoFileFlag=0
@@ -69,8 +69,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             ntasks=$option
         fi
@@ -79,8 +79,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             mem=$option
         fi
@@ -89,8 +89,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             hours=$option
         fi
@@ -99,8 +99,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             jobgroup="${option:0:5}"
         fi
@@ -109,8 +109,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             gpus=$option
         fi
@@ -119,8 +119,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             gpuname=$option
         fi
@@ -129,8 +129,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             partition=$option
         fi
@@ -139,8 +139,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             totalchunks=$option
         fi
@@ -149,8 +149,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             startingchunk=$option
         fi
@@ -159,8 +159,8 @@ for arg in "$@"; do
         i=$(($(get_index arguments $arg) + 1))
         option=${arguments[$i]}
         if [[ $option == -* ]] || [[ -z "$option" ]]; then
-            echo "An option must be passed when using $arg. Script has been exited."
-            exit
+            echo "An option must be passed when using $arg. Script has been returned."
+            return
         else
             lastchunk=$option
         fi        
@@ -169,12 +169,12 @@ done
 
 if [[ "$lastchunk" -gt "$totalchunks" ]] || [[ "$totalchunks" -lt "$startingchunk" ]] || [[ "$lastchunk" -lt "$startingchunk" ]]; then
     echo "ERROR: Please insure that your starting chunk <= last chunk <= total chunks."
-    exit
+    return
 fi
 
-if [ ! -f ~/ParpoolPreamble.txt ]; then
+if [ ! -f ~/easier_slurm_submissions/ParpoolPreamble.txt ]; then
     echo "ERROR: You need a preamble file for the MATLAB script in your home directory."
-    exit
+    return
 fi
 
 for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
@@ -195,7 +195,7 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     eightline+="$ChunkRun"
     eightline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
     echo $eightline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
-    cp $HOME/ParpoolPreamble.txt ./
+    cp $HOME/easier_slurm_submissions/ParpoolPreamble.txt ./
     preamble='sed -i -e "0r ParpoolPreamble.txt" ${myCommand%??}${SLURM_JOBID}.m'
     echo $preamble >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
     outline='myOutfile="cdf_outfile_'
