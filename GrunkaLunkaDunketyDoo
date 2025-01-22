@@ -1,0 +1,5 @@
+GrunkLunkaDunketyDoo () {
+    argArr=("$@")
+    . ~/easier_slurm_submissions/Glurmo.sh ${argArr[*]}
+}
+
