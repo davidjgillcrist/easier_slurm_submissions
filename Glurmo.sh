@@ -29,8 +29,8 @@ gpus=0 # No GPUs by default
 gpuname="1080ti"
 partition="cpu"
 totalchunks=1
-startingchunk=$totalchunks
-lastchunk=$totalchunks
+startingchunk=1
+lastchunk=1
 ########################################################
 
 
@@ -179,32 +179,32 @@ fi
 
 for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     shebangline='#!/bin/bash'
-    echo $shebangline > RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $shebangline > RunOnCluster${ChunkRun}_${jobgroup}.sh
     matmodeline='module load matlab/r2024a'
-    echo $matmodeline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $matmodeline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
     commandline='myCommand='
     commandline+="${runfilename}.m"
-    echo $commandline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $commandline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
     copyline='cp ./$myCommand ${myCommand%??}${SLURM_JOBID}.m'
-    echo $copyline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $copyline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
     sevenline='sed -i "s/totalchunks =.*/totalchunks = '
     sevenline+="$totalchunks"
     sevenline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $sevenline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $sevenline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
     eightline='sed -i "s/ChunkRun =.*/ChunkRun = '
     eightline+="$ChunkRun"
     eightline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $eightline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $eightline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
     cp $HOME/easier_slurm_submissions/ParpoolPreamble.txt ./
     preamble='sed -i -e "0r ParpoolPreamble.txt" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $preamble >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $preamble >> RunOnCluster${ChunkRun}_${jobgroup}.sh
     outline='myOutfile="cdf_outfile_'
     outline+="${ChunkRun}_${jobgroup}"
     outline+='_${SLURM_JOBID}.txt"'
-    echo $outline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
+    echo $outline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
     wrapperline='matlab -nosplash -nodesktop < ${myCommand%??}${SLURM_JOBID}.m > ./matlab_outfiles/$myOutfile'
-    echo $wrapperline >> RunOnCarnie${ChunkRun}_${jobgroup}.sh
-    runline="WimmyWamWamWozzle -f RunOnCarnie${ChunkRun}_${jobgroup}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
+    echo $wrapperline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
+    runline="WimmyWamWamWozzle -f RunOnCluster${ChunkRun}_${jobgroup}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
     echo $runline > RunTheRunner.sh
     source RunTheRunner.sh
     COUNTER=0
@@ -212,12 +212,12 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     while [[ -z "$jobID" ]]; do
         jobID="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $1 }')"
         if (( $COUNTER % 5 == 0)); then
-             echo "Waiting on the the shell script 'RunOnCarnie${ChunkRun}_${jobgroup}.sh' to be picked up by Slurm..."
+             echo "Waiting on the the shell script 'RunOnCluster${ChunkRun}_${jobgroup}.sh' to be picked up by Slurm..."
         fi
         let COUNTER++
         sleep 1
     done
-    echo "Success! The job initiated by shell script 'RunOnCarnie${ChunkRun}_${jobgroup}.sh' has been assgined the ID: $jobID" 
+    echo "Success! The job initiated by shell script 'RunOnCluster${ChunkRun}_${jobgroup}.sh' has been assgined the ID: $jobID" 
     run_query="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $5 }')"
     COUNTER=0
     while [[ $run_query == "PD" ]]; do
