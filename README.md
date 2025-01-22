@@ -63,7 +63,7 @@ At any point you can also run `WimmyWamWamWozzle -h` and it will print the follo
 -j, --jobname:   The name of the job as shown on squeue. Default is job-%j.
 ```
 
-### If you're wondering what the significance of the names Slurms MacKenzie and Wimmy Wam Wam Wozzle is, then I would kindly ask you to watch the show Futurama. :)
+### If you're wondering what the significance of the names Slurms MacKenzie, Wimmy Wam Wam Wozzle, Glurmo, and Grunka Lunka is, then I would kindly ask you to watch the show Futurama, specifically Season 1 Episode 13. :)
 
 ![slurms_mackenzie](https://github.com/user-attachments/assets/c5e54cf0-4267-47da-8917-701a49067882)
 
