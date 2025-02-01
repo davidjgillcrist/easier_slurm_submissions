@@ -44,7 +44,7 @@ for arg in "$@"; do
                 "-f, --file:           Pass a file to MATLAB file that will run in 'chunks' to several nodes. Not optional must be passed."\
                 "-n, --ntasks:         The number of processors used across all nodes. Default is 24."\
                 "-m, --mem:            The number of gigabytes of RAM reserved for the submission. Default is 96 GB."\
-                "-t, --hours:          The number of hours reservered for the submission. Default is 12 hours."\
+                "-t, --time:           The number of hours reservered for the submission. Default is 12 hours."\
                 "-g, --gpus:           The number of GPUs to reserve. Default is 0."\
                 "-G, --gpuname:        The name of the type of GPU being requested. Default is 1080ti."\
                 "-p, --partition:      The name of the partition that the job is being sent to. Default is cpu."\
@@ -179,55 +179,57 @@ fi
 
 for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     shebangline='#!/bin/bash'
-    echo $shebangline > RunOnCluster${ChunkRun}_${jobgroup}.sh
+    echo $shebangline > RunOnCluster_${jobgroup}.${ChunkRun}.sh
     matmodeline='module load matlab/r2024a'
-    echo $matmodeline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
+    echo $matmodeline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     commandline='myCommand='
     commandline+="${runfilename}.m"
-    echo $commandline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
+    echo $commandline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     copyline='cp ./$myCommand ${myCommand%??}${SLURM_JOBID}.m'
-    echo $copyline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
+    echo $copyline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     sevenline='sed -i "s/totalchunks =.*/totalchunks = '
     sevenline+="$totalchunks"
     sevenline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $sevenline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
-    eightline='sed -i "s/ChunkRun =.*/ChunkRun = '
+    echo $sevenline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
+    eightline='sed -i "/if ChunkRun/ ! s/ChunkRun =.*/ChunkRun = '
     eightline+="$ChunkRun"
     eightline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $eightline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
+    echo $eightline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     cp $HOME/easier_slurm_submissions/ParpoolPreamble.txt ./
     preamble='sed -i -e "0r ParpoolPreamble.txt" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $preamble >> RunOnCluster${ChunkRun}_${jobgroup}.sh
+    echo $preamble >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     outline='myOutfile="cdf_outfile_'
     outline+="${ChunkRun}_${jobgroup}"
     outline+='_${SLURM_JOBID}.txt"'
-    echo $outline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
+    echo $outline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     wrapperline='matlab -nosplash -nodesktop < ${myCommand%??}${SLURM_JOBID}.m > ./matlab_outfiles/$myOutfile'
-    echo $wrapperline >> RunOnCluster${ChunkRun}_${jobgroup}.sh
-    runline="WimmyWamWamWozzle -f RunOnCluster${ChunkRun}_${jobgroup}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
+    echo $wrapperline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
+    runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
     echo $runline > RunTheRunner.sh
     source RunTheRunner.sh
-    COUNTER=0
-    jobID="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $1 }')"
-    while [[ -z "$jobID" ]]; do
-        jobID="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $1 }')"
-        if (( $COUNTER % 5 == 0)); then
-             echo "Waiting on the the shell script 'RunOnCluster${ChunkRun}_${jobgroup}.sh' to be picked up by Slurm..."
-        fi
-        let COUNTER++
-        sleep 1
-    done
-    echo "Success! The job initiated by shell script 'RunOnCluster${ChunkRun}_${jobgroup}.sh' has been assgined the ID: $jobID" 
-    run_query="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $5 }')"
-    COUNTER=0
-    while [[ $run_query == "PD" ]]; do
-        run_query="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $5 }')"
-        if (( $COUNTER % 5 == 0)); then
-             echo "Waiting on job $jobID to be assigned a node..."
-        fi
-        let COUNTER++
-        sleep 1
-    done
-    NodeName="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $8 }')"
-    echo "Success! Job $jobID as been assigned to node $NodeName" 
+    # echo "Submitting RunOnCluster_${jobgroup}.${ChunkRun}.sh to cluster. Please wait..."
+    # sleep 5
+    # COUNTER=0
+    # jobID="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $1 }')"
+    # while [[ -z "$jobID" ]]; do
+    #     jobID="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $1 }')"
+    #     if (( $COUNTER % 5 == 0)); then
+    #          echo "Waiting on the the shell script 'RunOnCluster_${jobgroup}.${ChunkRun}.sh' to be picked up by Slurm..."
+    #     fi
+    #     let COUNTER++
+    #     sleep 1
+    # done
+    # echo "Success! The job initiated by shell script 'RunOnCluster_${jobgroup}.${ChunkRun}.sh' has been assgined the ID: $jobID" 
+    # run_query="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $5 }')"
+    # COUNTER=0
+    # while [[ $run_query == "PD" ]]; do
+    #     run_query="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $5 }')"
+    #     if (( $COUNTER % 5 == 0)); then
+    #          echo "Waiting on job $jobID to be assigned a node..."
+    #     fi
+    #     let COUNTER++
+    #     sleep 1
+    # done
+    # NodeName="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $8 }')"
+    # echo "Success! Job $jobID as been assigned to node $NodeName" 
 done
