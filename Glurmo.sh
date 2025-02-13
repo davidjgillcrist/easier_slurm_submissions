@@ -207,29 +207,5 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
     echo $runline > RunTheRunner.sh
     source RunTheRunner.sh
-    # echo "Submitting RunOnCluster_${jobgroup}.${ChunkRun}.sh to cluster. Please wait..."
-    # sleep 5
-    # COUNTER=0
-    # jobID="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $1 }')"
-    # while [[ -z "$jobID" ]]; do
-    #     jobID="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $1 }')"
-    #     if (( $COUNTER % 5 == 0)); then
-    #          echo "Waiting on the the shell script 'RunOnCluster_${jobgroup}.${ChunkRun}.sh' to be picked up by Slurm..."
-    #     fi
-    #     let COUNTER++
-    #     sleep 1
-    # done
-    # echo "Success! The job initiated by shell script 'RunOnCluster_${jobgroup}.${ChunkRun}.sh' has been assgined the ID: $jobID" 
-    # run_query="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $5 }')"
-    # COUNTER=0
-    # while [[ $run_query == "PD" ]]; do
-    #     run_query="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $5 }')"
-    #     if (( $COUNTER % 5 == 0)); then
-    #          echo "Waiting on job $jobID to be assigned a node..."
-    #     fi
-    #     let COUNTER++
-    #     sleep 1
-    # done
-    # NodeName="$(squeue --me -h --state=R --sort=T | grep -h ${jobgroup}.${ChunkRun} | awk '{ print $8 }')"
-    # echo "Success! Job $jobID as been assigned to node $NodeName" 
+    
 done
