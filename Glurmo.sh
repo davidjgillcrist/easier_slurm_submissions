@@ -43,7 +43,7 @@ for arg in "$@"; do
         printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n'\
                 "-f, --file:           Pass a file to MATLAB file that will run in 'chunks' to several nodes. Not optional must be passed."\
                 "-n, --ntasks:         The number of processors used across all nodes. Default is 24."\
-                "-m, --mem:            The number of gigabytes of RAM reserved for the submission. Default is 96 GB."\
+                "-m, --mem:            The number of gigabytes of RAM reserved for the submission. Default is 36 GB."\
                 "-t, --time:           The number of hours reservered for the submission. Default is 12 hours."\
                 "-g, --gpus:           The number of GPUs to reserve. Default is 0."\
                 "-G, --gpuname:        The name of the type of GPU being requested. Default is 1080ti."\
