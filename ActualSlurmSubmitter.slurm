@@ -4,11 +4,11 @@
 #SBATCH --error=/home/dgillcrist_umassd_edu/outfiles/slurm-%j.err
 
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=50
+#SBATCH --ntasks-per-node=4
 #SBATCH --partition=cpu
-#SBATCH --mem=75g
+#SBATCH --mem=16g
 #SBATCH --time=12:00:00
-#SBATCH --job-name=uhi2.03
+#SBATCH --job-name=coFs.01
 #SBATCH --gres=gpu:1080ti:0
 
-. /home/dgillcrist_umassd_edu/opt_exp_des_nD_param_ests/urban_heat_island_parameter_estimation_nD/RunOnCluster03_uhi2.sh
+. /home/dgillcrist_umassd_edu/opt_exp_des_nD_param_ests/river_source_and_intensity_estimation_3D/RunOnCluster_coFs.01.sh

@@ -1,5 +1,5 @@
 datetime
-addpath /home/dgillcrist/MATLAB_custom_functions/
+
 tic
 myCluster = parcluster('local')
 max_workers = myCluster.NumWorkers
@@ -8,3 +8,4 @@ p = parpool('Processes',max_workers);
 p.IdleTimeout = 120
 toc
 
+addpath("/home/dgillcrist_umassd_edu/MATLAB_custom_functions/")

@@ -177,6 +177,16 @@ if [ ! -f ~/easier_slurm_submissions/ParpoolPreamble.txt ]; then
     return
 fi
 
+LINE="${runfilename}[1-9]*.m"
+FILE='slurm_MATLAB_history.txt'
+
+if [ ! -f ${FILE} ]; then # Writes file name that will be run into a history text file for easy deletion later
+    touch "$FILE"
+    grep -qxF -- "$LINE" "$FILE" || echo "$LINE" > "$FILE"
+else
+    grep -qxF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
+fi
+
 for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     shebangline='#!/bin/bash'
     echo $shebangline > RunOnCluster_${jobgroup}.${ChunkRun}.sh
@@ -187,14 +197,14 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     echo $commandline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     copyline='cp ./$myCommand ${myCommand%??}${SLURM_JOBID}.m'
     echo $copyline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    sevenline='sed -i "s/totalchunks =.*/totalchunks = '
-    sevenline+="$totalchunks"
-    sevenline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $sevenline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    eightline='sed -i "/if ChunkRun/ ! s/ChunkRun =.*/ChunkRun = '
-    eightline+="$ChunkRun"
-    eightline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
-    echo $eightline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
+    totalchunkline='sed -i "s/totalchunks =.*/totalchunks = '
+    totalchunkline+="$totalchunks"
+    totalchunkline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
+    echo $totalchunkline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
+    chunkrunline='sed -i "/if ChunkRun/ ! s/ChunkRun =.*/ChunkRun = '
+    chunkrunline+="$ChunkRun"
+    chunkrunline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
+    echo $chunkrunline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     cp $HOME/easier_slurm_submissions/ParpoolPreamble.txt ./
     preamble='sed -i -e "0r ParpoolPreamble.txt" ${myCommand%??}${SLURM_JOBID}.m'
     echo $preamble >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
