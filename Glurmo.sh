@@ -172,7 +172,7 @@ if [[ "$lastchunk" -gt "$totalchunks" ]] || [[ "$totalchunks" -lt "$startingchun
     return
 fi
 
-if [ ! -f ~/easier_slurm_submissions/ParpoolPreamble.txt ]; then
+if [ ! -f ~/easier_slurm_submissions/ParpoolPreamble.m ]; then
     echo "ERROR: You need a preamble file for the MATLAB script in your home directory."
     return
 fi
@@ -205,8 +205,8 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     chunkrunline+="$ChunkRun"
     chunkrunline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
     echo $chunkrunline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    cp $HOME/easier_slurm_submissions/ParpoolPreamble.txt ./
-    preamble='sed -i -e "0r ParpoolPreamble.txt" ${myCommand%??}${SLURM_JOBID}.m'
+    cp $HOME/easier_slurm_submissions/ParpoolPreamble.m ./
+    preamble='sed -i -e "0r ParpoolPreamble.m" ${myCommand%??}${SLURM_JOBID}.m'
     echo $preamble >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     outline='myOutfile="cdf_outfile_'
     outline+="${ChunkRun}_${jobgroup}"
