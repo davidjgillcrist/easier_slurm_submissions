@@ -167,6 +167,11 @@ for arg in "$@"; do
     esac
 done
 
+if [[ $NoFileFlag -eq 1 ]]; then
+    echo "No file was passed. Please include a file after the flag --file or -f. Script has been returned."
+    return
+fi
+
 if [[ "$lastchunk" -gt "$totalchunks" ]] || [[ "$totalchunks" -lt "$startingchunk" ]] || [[ "$lastchunk" -lt "$startingchunk" ]]; then
     echo "ERROR: Please insure that your starting chunk <= last chunk <= total chunks."
     return
@@ -195,13 +200,17 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     commandline='myCommand='
     commandline+="${runfilename}.m"
     echo $commandline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    copyline='cp ./$myCommand ${myCommand%??}${SLURM_JOBID}.m'
+    timestampID=$(date +%s%N)
+    cp ./${runfilename}.m ./${runfilename}${timestampID}.m
+    copyline='mv ./${myCommand%??}'
+    copyline+="${timestampID}.m " 
+    copyline+='${myCommand%??}${SLURM_JOBID}.m'
     echo $copyline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    totalchunkline='sed -i "s/totalchunks =.*/totalchunks = '
+    totalchunkline='sed -i "0,/totalchunks =.*/s//totalchunks = '
     totalchunkline+="$totalchunks"
     totalchunkline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
     echo $totalchunkline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    chunkrunline='sed -i "/if ChunkRun/ ! s/ChunkRun =.*/ChunkRun = '
+    chunkrunline='sed -i "0,/ChunkRun =.*/s//ChunkRun = '
     chunkrunline+="$ChunkRun"
     chunkrunline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
     echo $chunkrunline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
@@ -216,6 +225,5 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     echo $wrapperline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
     echo $runline > RunTheRunner.sh
-    source RunTheRunner.sh
-    
+    source RunTheRunner.sh 
 done
