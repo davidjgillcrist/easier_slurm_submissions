@@ -221,12 +221,8 @@ for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
     outline+="${ChunkRun}_${jobgroup}"
     outline+='_${SLURM_JOBID}.txt"'
     echo $outline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    checkdir1="if [ ! -d ./matlab_outfiles/ ]; then"
-    echo $checkdir1 >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    checkdir2="    mkdir matlab_outfiles"
-    echo $checkdir2 >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    checkdir3="fi"
-    echo $checkdir3 >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
+    checkdir="if [ ! -d ./matlab_outfiles/ ]; then\n\tmkdir matlab_outfiles\nfi"
+    echo -e $checkdir >> RunOnCluster_${jobgroup}.${ChunkRun}.sh 
     wrapperline='matlab -nosplash -nodesktop < ${myCommand%??}${SLURM_JOBID}.m > ./matlab_outfiles/$myOutfile'
     echo $wrapperline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
