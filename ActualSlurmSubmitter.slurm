@@ -4,11 +4,11 @@
 #SBATCH --error=/home/dgillcrist_umassd_edu/outfiles/slurm-%j.err
 
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=50
 #SBATCH --partition=cpu
-#SBATCH --mem=16g
+#SBATCH --mem=75g
 #SBATCH --time=12:00:00
-#SBATCH --job-name=vsrct.01
+#SBATCH --job-name=uhico.01
 #SBATCH --gres=gpu:1080ti:0
 
-. /home/dgillcrist_umassd_edu/opt_exp_des_nD_param_ests/river_source_and_intensity_estimation_3D/RunOnCluster_vsrct.01.sh
+. /home/dgillcrist_umassd_edu/opt_exp_des_nD_param_ests/urban_heat_island_5D/RunOnCluster_uhico.01.sh
