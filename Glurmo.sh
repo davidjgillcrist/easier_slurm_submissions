@@ -102,7 +102,7 @@ for arg in "$@"; do
             echo "An option must be passed when using $arg. Script has been returned."
             return
         else
-            jobgroup="${option:0:5}"
+            jobgroup="$option"
         fi
           ;;
         -g|--gpus)
@@ -192,7 +192,7 @@ else
     grep -qxF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 fi
 
-for ChunkRun in $(seq -f '%02g' $startingchunk $lastchunk); do
+for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     shebangline='#!/bin/bash'
     echo $shebangline > RunOnCluster_${jobgroup}.${ChunkRun}.sh
     matmodeline='module load matlab/r2024a'
