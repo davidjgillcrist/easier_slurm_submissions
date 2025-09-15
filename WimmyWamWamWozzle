@@ -1,4 +1,4 @@
 WimmyWamWamWozzle () {
-    argArr=("$@")
-    . ~/Slurms_MacKenzie.sh ${argArr[*]}
+    bash ~/easier_slurm_submissions/Slurms_MacKenzie.sh "$@";
 }
+
