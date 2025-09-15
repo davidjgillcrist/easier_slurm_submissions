@@ -149,7 +149,7 @@ if [[ $NoFileFlag -eq 1 ]]; then
     return
 fi
 
-echo -e "#!/bin/sh\n" > ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
+echo -e "#!/bin/bash\n" > ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
 
 echo "#SBATCH --output=$HOME/outfiles/slurm-%j.out" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
 echo -e "#SBATCH --error=$HOME/outfiles/slurm-%j.err\n" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
