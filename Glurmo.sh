@@ -225,7 +225,7 @@ for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     echo -e $checkdir >> RunOnCluster_${jobgroup}.${ChunkRun}.sh 
     wrapperline='matlab -nosplash -nodesktop < ${myCommand%??}${SLURM_JOBID}.m > ./matlab_outfiles/$myOutfile'
     echo $wrapperline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
+    runline="bash ~/easier_slurm_submissions/Slurms_MacKenzie.sh -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
     echo $runline > RunTheRunner.sh
     source RunTheRunner.sh 
 done
