@@ -1,4 +1,5 @@
-WimmyWamWamWozzle () {
-    bash ~/easier_slurm_submissions/Slurms_MacKenzie.sh "$@";
-}
+#!/usr/bin/env bash
+# ~/bin/WimmyWamWamWozzle
 
+# Source the script with all arguments forwarded
+source "$HOME/easier_slurm_submissions/Slurms_MacKenzie.sh" "$@"

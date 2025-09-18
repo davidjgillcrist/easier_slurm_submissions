@@ -192,10 +192,15 @@ else
     grep -qxF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 fi
 
+IncludePreamble=""
+if [[ $ntasks -gt 1 ]]; then
+    IncludePreamble="ParpoolPreamble.m"
+fi
+
 for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     shebangline='#!/bin/bash'
     echo $shebangline > RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    matmodeline='module load matlab/r2024a'
+    matmodeline='module load matlab/r2025a'
     echo $matmodeline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     commandline='myCommand='
     commandline+="${runfilename}.m"
@@ -215,9 +220,11 @@ for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     chunkrunline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
     echo $chunkrunline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     cp $HOME/easier_slurm_submissions/ParpoolPreamble.m ./
-    preamble='sed -i -e "0r ParpoolPreamble.m" ${myCommand%??}${SLURM_JOBID}.m'
+    preamble='sed -i -e "0r '
+    preamble+="$IncludePreamble"
+    preamble+='" ${myCommand%??}${SLURM_JOBID}.m'
     echo $preamble >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    outline='myOutfile="cdf_outfile_'
+    outline='myOutfile="MATLAB_outfile_'
     outline+="${ChunkRun}_${jobgroup}"
     outline+='_${SLURM_JOBID}.txt"'
     echo $outline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
@@ -225,7 +232,8 @@ for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     echo -e $checkdir >> RunOnCluster_${jobgroup}.${ChunkRun}.sh 
     wrapperline='matlab -nosplash -nodesktop < ${myCommand%??}${SLURM_JOBID}.m > ./matlab_outfiles/$myOutfile'
     echo $wrapperline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
-    runline="bash ~/easier_slurm_submissions/Slurms_MacKenzie.sh -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
-    echo $runline > RunTheRunner.sh
-    source RunTheRunner.sh 
+    runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
+    echo "#!/usr/bin/env zsh" > RunTheRunner.sh
+    echo $runline >> RunTheRunner.sh
+    . RunTheRunner.sh 
 done
