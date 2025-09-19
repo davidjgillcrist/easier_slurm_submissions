@@ -14,4 +14,4 @@ end
 
 addpath("/home/dgillcrist_umassd_edu/MATLAB_custom_functions/")
 
-apply_font_defaults_from_file;
+apply_font_defaults_from_file
