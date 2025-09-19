@@ -192,10 +192,7 @@ else
     grep -qxF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 fi
 
-IncludePreamble=""
-if [[ $ntasks -gt 1 ]]; then
-    IncludePreamble="ParpoolPreamble.m"
-fi
+IncludePreamble="ParpoolPreamble.m"
 
 for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     shebangline='#!/bin/bash'
