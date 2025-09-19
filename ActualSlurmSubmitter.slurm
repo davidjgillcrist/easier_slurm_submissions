@@ -8,7 +8,7 @@
 #SBATCH --partition=cpu
 #SBATCH --mem=36g
 #SBATCH --time=12:00:00
-#SBATCH --job-name=groot_test.001
+#SBATCH --job-name=plotTest.001
 #SBATCH --gres=gpu:1080ti:0
 
-. /home/dgillcrist_umassd_edu/RunOnCluster_groot_test.001.sh
+. /home/dgillcrist_umassd_edu/opt_exp_des_nD_param_ests/rvr2DsrcANDx/RunOnCluster_plotTest.001.sh
