@@ -210,11 +210,11 @@ for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     echo $copyline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     totalchunkline='sed -i "0,/totalchunks =.*/s//totalchunks = '
     totalchunkline+="$totalchunks"
-    totalchunkline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
+    totalchunkline+=';/" ${myCommand%??}${SLURM_JOBID}.m'
     echo $totalchunkline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     chunkrunline='sed -i "0,/ChunkRun =.*/s//ChunkRun = '
     chunkrunline+="$ChunkRun"
-    chunkrunline+=';/g" ${myCommand%??}${SLURM_JOBID}.m'
+    chunkrunline+=';/" ${myCommand%??}${SLURM_JOBID}.m'
     echo $chunkrunline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     cp $HOME/easier_slurm_submissions/ParpoolPreamble.m ./
     preamble='sed -i -e "0r '
@@ -227,7 +227,7 @@ for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     echo $outline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     checkdir="if [ ! -d ./matlab_outfiles/ ]; then\n\tmkdir matlab_outfiles\nfi"
     echo -e $checkdir >> RunOnCluster_${jobgroup}.${ChunkRun}.sh 
-    wrapperline='matlab -nosplash -nodesktop < ${myCommand%??}${SLURM_JOBID}.m > ./matlab_outfiles/$myOutfile'
+    wrapperline='matlab -batch "${myCommand%??}${SLURM_JOBID}" > ./matlab_outfiles/$myOutfile'
     echo $wrapperline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
     echo "#!/usr/bin/env zsh" > RunTheRunner.sh
