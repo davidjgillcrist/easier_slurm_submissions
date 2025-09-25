@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+waitTime=$1
+
+shouldBreak=0
+
+if read -rs -k1 -t $waitTime key; then
+    case "$key" in
+        Q|q)
+            __clear_lines 0
+            printf '%s\n' "Input: $key"
+            printf '%s\n' "Exiting squeue monitoring..."
+            shouldBreak=1
+            ;;
+    esac
+fi
+
+exit $shouldBreak

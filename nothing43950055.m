@@ -17,3 +17,4 @@ fprintf('\n%s\n\n',repelem('=',50))
 addpath("/home/dgillcrist_umassd_edu/MATLAB_custom_functions/")
 
 apply_font_defaults_from_file
+pause(3600)

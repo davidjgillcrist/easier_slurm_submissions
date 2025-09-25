@@ -3,25 +3,28 @@
 if [ -z "$1" ]; then
     Usqueue
 elif [ -z "$2" ]; then
-    linesShown=$(( $1 + 3 ))
+    displayLines=$1
+    linesShown=$(( $displayLines + 3 ))
     Usqueue | head -n "$linesShown"
 else
+    refreshTime=$1
+    displayLines=$2
     headerSize=3 # Full height of the header part of Usqeue
-    fullEscape=false
+    fullEscape=0
     numOnQueue=$(( $(Usqueue | wc -l) - headerSize ))
     infoLines=(" ") # First entry is a blank line to create buffer between Usqueue and infoLines
     infoLines+=("# of uncompleted jobs: $numOnQueue")
     removeUnwantedLine=${#infoLines[@]}
-    infoLines+=("Press q or Q to exit.")
+    infoLines+=($'\033[1;33mNOTE\033[0m: Press q or Q to exit.')
     numInfoLines=${#infoLines[@]}
     if (( numOnQueue > 0 )); then
-        linesShown=$(( $2 + headerSize ))
+        linesShown=$(( displayLines + headerSize ))
         isFirst=1
         while (( numOnQueue > 0 )); do
             if (( isFirst )); then
                 isFirst=0
             else
-                clear_lines "$(( linesShown + numInfoLines ))"
+                __clear_lines "$(( linesShown + numInfoLines ))"
                 infoLines[$removeUnwantedLine]="# of uncompleted jobs: $numOnQueue"
             fi
             if (( linesShown > numOnQueue )); then
@@ -30,21 +33,16 @@ else
             Usqueue | head -n "$linesShown"
             printf '%s\n' "${infoLines[@]}"
             printf '%s' "Input: "
-            if read -rs -k1 -t $1 key; then
-                case "$key" in
-                    Q|q)
-                        clear_lines 1
-                        printf '%s\n' "Input: $key"
-                        printf '%s\n' "Exiting squeue monitoring..."
-                        fullEscape=true
-                        break 
-                        ;;
-                esac
-            fi
+            fullEscape=$(__wait_for_keypress $refreshTime)
+            $fullEscape && break 
             numOnQueue=$(( $(Usqueue | wc -l) - headerSize ))
             while (( numOnQueue < 0 )); do
+                quickTime=0.05
+                fullEscape=$(__wait_for_keypress $quickTime)
+                $fullEscape && break
                 numOnQueue=$(( $(Usqueue | wc -l) - headerSize ))
             done
+            $fullEscape && break
         done
     else
         emptyJobs=$'\033[1;33mWarning:\033[0m There are no jobs running on Unity right now. Either your script hasn\'t finished submitting them, they\'ve completed already, or you forgot to submit any.'
@@ -55,16 +53,17 @@ else
     else
         timer=17
         numRings=3
-        spacingSecs=0.875
+        spacingSecs=1.275
+        btwnRings=0.875
         if [[ ! -z $emptyJobs ]]; then
             printf '%s' "$emptyJobs"
         else
-            clear_lines "$(( linesShown + numInfoLines ))"
+            __clear_lines "$(( linesShown + numInfoLines ))"
             finalOutput=$'All jobs have either \033[1;32mfinished\033[0m running on Unity, have \033[1;31mfailed\033[0m to be picked up by Slurm, or were \033[1;31m aborted\033[0m in their execution due to errors. Check your various outfile directories for details.'
             cols=$(tput cols)
             wrappedLines=$(echo "$finalOutput" | fold -s -w $cols)
             echo "$wrappedLines" | while IFS= read -r line; do
-                printf "%s\n" "$line"
+                printf '%s\n' "$line"
             done 
         fi 
         unset "infoLines[$removeUnwantedLine]"
@@ -72,19 +71,13 @@ else
         printf '%s' "Input: "
         while (( timer > 0 )); do
             for i in {1..$numRings}; do
-                print -n "\a"
-                sleep 1.125
+                printf "\a"
+                shouldBreak=$(__wait_for_keypress $spacingSecs)
+                $shouldBreak && break
             done
-            if read -rs -k1 -t $spacingSecs key; then
-                case "$key" in
-                    Q|q)
-                        clear_lines 1
-                        printf '%s\n' "Input: $key"
-                        printf '%s\n' "Exiting squeue monitoring..."
-                        break
-                        ;;
-                esac
-            fi
+            $shouldBreak && break
+            shouldBreak=$(__wait_for_keypress $btwnRings)
+            $shouldBreak && break
             (( timer-- ))
         done
     fi
