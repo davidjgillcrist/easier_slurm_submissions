@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
 
 Usqueue() {
   local termw="${COLUMNS:-$(tput cols 2>/dev/null)}"
@@ -230,5 +229,4 @@ Usqueue() {
   ' <<< "$raw"
 }
 
-Usqueue "$@"
 

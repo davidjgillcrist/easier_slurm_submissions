@@ -230,7 +230,8 @@ for ChunkRun in $(seq -f '%03g' $startingchunk $lastchunk); do
     wrapperline='matlab -batch "${myCommand%??}${SLURM_JOBID}" > ./matlab_outfiles/$myOutfile'
     echo $wrapperline >> RunOnCluster_${jobgroup}.${ChunkRun}.sh
     runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroup}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroup}.${ChunkRun}"
-    echo "#!/usr/bin/env zsh" > RunTheRunner.sh
+    echo "#!/bin/zsh\n" > RunTheRunner.sh
+    echo "source ~/easier_slurm_submissions/WimmyWamWamWozzle.sh" >> RunTheRunner.sh
     echo $runline >> RunTheRunner.sh
-    . RunTheRunner.sh 
+    . ./RunTheRunner.sh
 done

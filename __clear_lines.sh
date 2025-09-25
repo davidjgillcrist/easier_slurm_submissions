@@ -1,0 +1,8 @@
+#!/bin/sh
+
+__clear_lines () { # Command used to erase lines in the terminal readout
+    printf "\033[1G\033[K"
+    for ((i=0; i<$1; i++)); do
+        printf "\033[F\033[K"
+    done
+}

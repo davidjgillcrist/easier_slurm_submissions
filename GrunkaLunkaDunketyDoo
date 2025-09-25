@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# ~/bin/WimmyWamWamWozzle
-
-# Source the script with all arguments forwarded
-source "$HOME/easier_slurm_submissions/Glurmo.sh" "$@"
