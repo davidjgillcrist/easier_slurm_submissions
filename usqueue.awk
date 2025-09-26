@@ -1,0 +1,217 @@
+function spaces(n,   s){ s=""; while (length(s)<n) s=s " "; return s }
+function center(txt, w,   pad,left,right){
+    if (w <= 0) return ""
+    pad = w - length(txt); if (pad < 0) pad = 0
+    left = int(pad/2); right = pad - left
+    return sprintf("%*s%s%*s", left, "", txt, right, "")
+}
+
+BEGIN {
+    FS="|"; OFS="|"; cols=8
+
+    # Headers / labels
+    hdr[1]="JOBID"
+    hdr[2]="STATE"
+    hdr[3]="JOB NAME"
+    hdr[4]="CPUS"
+    hdr[5]="MEM"
+    hdr[6]="TIME"
+    hdr[7]="TIME LIMIT"
+    hdr[8]="NODELIST (REASON)"
+
+    name_col=3
+
+    # 2-space left gutter before the first column
+    left_gutter = 2
+    lg = spaces(left_gutter)
+
+    # Start with 4 spaces padding on both sides of every column
+    for (i=1;i<=cols;i++) { pad[i]=4; padL[i]=4; padR[i]=4 }
+
+    # Content width starts from headers
+    for (i=1;i<=cols;i++) { content[i]=length(hdr[i]); from_header[i]=1 }
+
+    n=0
+
+    # ANSI underline controls
+    UL_SINGLE = "\033[4m"    # single underline on
+    UL_DOUBLE = "\033[4:2m"  # double underline on
+    UL_OFF    = "\033[24m"   # underline off
+
+    # ---- Padding priority (INCREASE) ----
+    # JOB NAME (3), TIME LIMIT (6), TIME (5), STATE (4), JOBID (1), NODES (7), NODELIST (8), PARTITION (2)
+    inc_pr[1]=3;  inc_pr[2]=6;  inc_pr[3]=5;  inc_pr[4]=4;
+    inc_pr[5]=1;  inc_pr[6]=7;  inc_pr[7]=8;  inc_pr[8]=2;
+    inc_count=8
+
+    # ---- Padding priority (DECREASE = reverse of increase) ----
+    dec_pr[1]=2;  dec_pr[2]=8;  dec_pr[3]=7;  dec_pr[4]=1;
+    dec_pr[5]=4;  dec_pr[6]=5;  dec_pr[7]=6;  dec_pr[8]=3;
+    dec_count=8
+}
+
+$0=="" { next }  # skip blanks
+
+{
+    n++
+    for (i=1;i<=cols;i++) {
+      cell[n,i]=$i
+      L=length($i)
+      if (L > content[i]) { content[i]=L; from_header[i]=0 }
+    }
+}
+
+function recompute_total(   i){
+    total = left_gutter + (cols-1)  # 7 pipes
+    for (i=1;i<=cols;i++) {
+        padL[i] = (defined_padL[i]? padL[i] : pad[i])
+        padR[i] = (defined_padR[i]? padR[i] : pad[i])
+        colw[i] = padL[i] + content[i] + padR[i]
+        total += colw[i]
+    }
+    return total
+}
+
+END {
+    # 1) Base widths (4+4 padding per col)
+    recompute_total()
+
+    # 2) If too wide, reduce padding by DECREASE priority (down to 1 per side)
+    if (total > termw) {
+        overflow = total - termw
+
+        # Explicit odd-overflow handling: remove 1 from LEFT of JOBID first
+        if ((overflow % 2) == 1 && padL[1] > 1) {
+            padL[1]--; defined_padL[1]=1
+            recompute_total()
+            overflow = total - termw
+        }
+
+        # Then proceed with symmetric reductions by priority
+        while (total > termw) {
+            reduced_any=0
+            for (k=1; k<=dec_count && total>termw; k++) {
+                i = dec_pr[k]
+                if (pad[i] > 1) {
+                    pad[i]--
+                    if (!defined_padL[i]) padL[i]=pad[i]
+                    if (!defined_padR[i]) padR[i]=pad[i]
+                    recompute_total()
+                    reduced_any=1
+                }
+            }
+            if (!reduced_any) break
+        }
+    }
+
+    # 3) If still too wide and JOB NAME is data-driven, cap its content width
+    if (total > termw && from_header[name_col]==0) {
+        min_name_content = length(hdr[name_col]) + 2
+        if (content[name_col] > min_name_content) {
+            content[name_col] = min_name_content
+            recompute_total()
+        }
+    }
+
+    # 4) If narrower than termw, grow padding by INCREASE priority
+    if (total < termw) {
+        extra = termw - total
+        # Add symmetric padding rounds (+2 width per column per round)
+        while (extra >= 2) {
+            progressed=0
+            for (k=1; k<=inc_count && extra>=2; k++) {
+              i = inc_pr[k]
+              pad[i]++
+              padL[i]=pad[i]; padR[i]=pad[i]
+              extra -= 2
+              progressed=1
+            }
+            if (!progressed) break
+        }
+        # If 1 leftover, put it on LEFT of JOBID
+        if (extra == 1) {
+            i = 1
+            padL[i] = pad[i] + 1
+            defined_padL[i]=1
+            extra--
+        }
+        recompute_total()
+    }
+
+    # ----------------- HEADER: 3 lines -----------------
+    # 1) Top spacer row (no underline)
+    line = lg
+    for (i=1;i<=cols;i++) {
+        cellh = spaces(padL[i]) spaces(content[i]) spaces(padR[i])
+        line  = (i==1 ? line cellh : line "|" cellh)
+    }
+    print line
+
+    # 2) Header names row: underline ONLY the header text (no padded spaces)
+    line = lg
+    for (i=1;i<=cols;i++) {
+        inner = content[i]
+        hlen  = length(hdr[i])
+        lpad  = int((inner - hlen)/2); if (lpad < 0) lpad = 0
+        rpad  = inner - hlen - lpad;   if (rpad < 0) rpad = 0
+
+        cellh = spaces(padL[i]) spaces(lpad) "\033[4m" hdr[i] "\033[24m" spaces(rpad) spaces(padR[i])
+        line  = (i==1 ? line cellh : line "|" cellh)
+    }
+    print line
+
+    # 3) Bottom spacer row (double underline across entire row incl. pipes)
+    line = lg
+    for (i=1;i<=cols;i++) {
+        cellh = spaces(padL[i]) spaces(content[i]) spaces(padR[i])
+        line  = (i==1 ? line cellh : line "|" cellh)
+    }
+    printf("%s%s%s\n", "\033[4:2m", line, "\033[24m")
+
+    # If no jobs, just exit (no message row)
+    if (n == 0) exit
+
+    # ----------------- Rows -----------------
+    for (r=1;r<=n;r++) {
+        # Top line + capture JOB NAME remainder for wrapping
+        line = lg
+        name_rem=""
+        for (i=1;i<=cols;i++) {
+            txt = cell[r,i]
+            inner = content[i]
+
+            if (i==name_col && length(txt) > inner) {
+                head = substr(txt, 1, inner)
+                name_rem = substr(txt, inner+1)
+                body = head
+            } else {
+                if (length(txt) > inner) txt = substr(txt, 1, inner)
+                body = txt
+            }
+
+            body = center(body, inner)
+            cellb = spaces(padL[i]) body spaces(padR[i])
+            line = (i==1 ? line cellb : line "|" cellb)
+        }
+        print line
+
+        # Wrapped lines for JOB NAME; other cols blank but same widths
+        while (length(name_rem) > 0) {
+            seg = substr(name_rem, 1, content[name_col])
+            name_rem = substr(name_rem, content[name_col]+1)
+
+            line = lg
+            for (i=1;i<=cols;i++) {
+                inner = content[i]
+                if (i==name_col) {
+                    cellb = spaces(padL[i]) center(seg, inner) spaces(padR[i])
+                } else {
+                    cellb = spaces(padL[i]) center("", inner) spaces(padR[i])
+                }
+                line = (i==1 ? line cellb : line "|" cellb)
+            }
+            print line
+        }
+    }
+}
+  

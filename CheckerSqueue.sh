@@ -39,11 +39,23 @@ CheckerSqueue () {
                 key=$(__wait_for_keypress $refreshTime); fullEscape=$?
                 (( fullEscape == 1 )) && __clear_lines 0 && printf '%s\n%s\n' "Input: $key" "Exiting squeue monitoring..." && break 
                 numInQueue=$(( $(Usqueue | wc -l) - headerSize ))
-                while (( numInQueue < 0 )); do
+                while (( numInQueue <= 0 )); do
                     quickTime=0.25
                     key=$(__wait_for_keypress $quickTime); fullEscape=$?
-                    (( fullEscape == 1 )) && __clear_lines 0 && printf '%s\n%s\n' "Input: $key" "Exiting squeue monitoring..." && break
+                    (( fullEscape == 1 )) && break
                     numInQueue=$(( $(Usqueue | wc -l) - headerSize ))
+                    if (( numInQueue ==  0 )); then
+                        startTime=$SECONDS
+                        while (( numInQueue == 0 )); do
+                            quickTime=0.25
+                            key=$(__wait_for_keypress $quickTime); fullEscape=$?
+                            (( fullEscape == 1 )) && break
+                            numInQueue=$(( $(Usqueue | wc -l) - headerSize ))
+                            if (( $(( SECONDS - startTime )) > maxSubLoopWait )); then
+                                break
+                            fi
+                        done
+                    fi
                 done
                 (( fullEscape == 1 )) && __clear_lines 0 && printf '%s\n%s\n' "Input: $key" "Exiting squeue monitoring..." && break
             done
@@ -83,7 +95,7 @@ CheckerSqueue () {
                 for i in {1..$numRings}; do
                     printf "\a"
                     key=$(__wait_for_keypress $spacingSecs); shouldBreak=$?
-                    (( shouldBreak == 1 )) && __clear_lines 0 && printf '%s\n%s\n' "Input: $key" "Exiting squeue monitoring..." && break
+                    (( shouldBreak == 1 )) && break
                 done
                 (( shouldBreak == 1 )) && __clear_lines 0 && printf '%s\n%s\n' "Input: $key" "Exiting squeue monitoring..." && break
                 key=$(__wait_for_keypress $btwnRings); shouldBreak=$?
