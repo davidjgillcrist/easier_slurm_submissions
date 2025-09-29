@@ -2,7 +2,7 @@ datetime
 
 tic
 myCluster = parcluster('local')
-delete(myCluster.Jobs)
+% delete(myCluster.Jobs)
 max_workers = myCluster.NumWorkers
 if max_workers > 1
     p = parpool('Processes',max_workers);
