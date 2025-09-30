@@ -14,6 +14,8 @@ get_index () {
     echo $index
 }
 
+source ~/easier_slurm_submissions/hexID.sh
+
 ################################################################################
 # THIS IS WHERE YOU SPECIFY THE JOBS/TASKS TO RUN
 ################################################################################
@@ -167,26 +169,22 @@ for arg in "$@"; do
                 earlyBreak=1; break
             else
                 lastchunk=$option
-            fi        
-    esac
-done
-
-if 
-
-for arg in "$@"; do
-    case $arg in
+            fi
+        ;;
         -I|--groupID)
             i=$(($(get_index arguments $arg) + 1))
             option=${arguments[$i]}
             if [[ $option == -* ]] || [[ -z "$option" ]]; then
                 if [[ $totalchunks -ne 1 ]]; then
                     echo "An option must be passed when using $arg. Submissions have been aborted."
-                    earlyBreak=1; break
+                    break
                 else
-                    groupID="0000000000"
+                    groupID=$(hexID)
+                    echo "You forget to pass a groupID with the options -I or --groupID. Assigning the groupID this moment\'s hex code: $groupID" 
+                    NoIDFlag=0
                 fi
             else
-                groupID=${option::-2}
+                groupID=${option}
                 NoIDFlag=0
             fi
     esac
@@ -196,13 +194,17 @@ if [[ $NoFileFlag -eq 1 ]]; then
     printf '%s\n' $'\033[1;31mNo\033[0m file was passed. Please include a file after the flag --file or -f. Submissions have been aborted.'
 fi
 
-if [[ $NoIDFlag -eq 1 ]]; then
-    printf '%s\n' $'\033[1;31mNo\033[0m groupID was provided. This is a necessary input to determine what jobs are tied together. Please give an ID after passing the flag --groupID or -I. Submissions have been aborted'
+if [[ "$lastchunk" -gt "$totalchunks" ]] || [[ "$totalchunks" -lt "$startingchunk" ]] || [[ "$lastchunk" -lt "$startingchunk" ]] || [[ "$totalchunks" -lt 1 ]]; then
+    echo "ERROR: Please insure that your 1 <= starting chunk <= last chunk <= total chunks."
+    earlyBreak=1
 fi
 
-if [[ "$lastchunk" -gt "$totalchunks" ]] || [[ "$totalchunks" -lt "$startingchunk" ]] || [[ "$lastchunk" -lt "$startingchunk" ]]; then
-    echo "ERROR: Please insure that your starting chunk <= last chunk <= total chunks."
+if [[ $NoIDFlag -eq 1 ]] && [[ $totalchunks -ne 1 ]]; then
+    printf '%s\n' $'\033[1;31mNo\033[0m groupID was provided. This is a necessary input to determine what jobs are tied together. Please give an ID after passing the flag --groupID or -I. Submissions have been aborted'
     earlyBreak=1
+elif [[ $NoIDFlag -eq 1 ]] && [[ $totalchunks -eq 1 ]]; then
+    groupID=$(hexID)
+    printf '%s%s\n' $'\033[1;31mNo\033[0m groupID was provided, but the variable "\033[1;33mtotalchunks\033[0m" is equal to 1. Assigning it this moment\'s hex code: ' "$groupID"
 fi
 
 if [ ! -f ~/easier_slurm_submissions/ParpoolPreamble.m ]; then
