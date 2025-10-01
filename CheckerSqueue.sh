@@ -52,9 +52,12 @@ CheckerSqueue () {
                             (( fullEscape == 1 )) && break
                             numInQueue=$(( $(Usqueue | wc -l) - headerSize ))
                             if (( $(( SECONDS - startTime )) > maxSubLoopWait )); then
-                                break
+                                finishCheckBreak=1; break
                             fi
                         done
+                        if (( finishCheckBreak == 1 )); then
+                            break
+                        fi
                     fi
                 done
                 (( fullEscape == 1 )) && __clear_lines 0 && printf '%s\n%s\n' "Input: $key" "Exiting squeue monitoring..." && break
@@ -72,9 +75,9 @@ CheckerSqueue () {
                 printf '%s' "$emptyJobs"
             else
                 __clear_lines "$(( linesShown + numInfoLines ))"
-                local finalOutput=$'All jobs have either \033[1;32mfinished\033[0m running on Unity, \
-                    have \033[1;31mfailed\033[0m to be picked up by Slurm, or were \033[1;31m aborted\033[0m \
-                    in their execution due to errors. Check your various outfile directories for details.'
+                local finalOutput=$'All jobs have either \033[1;32mfinished\033[0m running on Unity, '\
+                    $'have \033[1;31mfailed\033[0m to be picked up by Slurm, or were \033[1;31m aborted\033[0m '\
+                    $'in their execution due to errors. Check your various outfile directories for details.'
                 local cols=$(tput cols)
                 local wrappedLines=$(echo "$finalOutput" | fold -s -w $cols)
                 echo "$wrappedLines" | while IFS= read -r line; do

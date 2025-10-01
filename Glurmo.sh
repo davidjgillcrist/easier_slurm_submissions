@@ -267,7 +267,7 @@ if (( earlyBreak == 0)); then
         checkdir="if [ ! -d ./matlab_outfiles/ ]; then\n\tmkdir matlab_outfiles\nfi"
         echo -e $checkdir >> RunOnCluster_${jobgroupname}.${ChunkRun}.sh 
         
-        wrapperline='matlab -batch "${myCommand%??}${SLURM_JOBID}" > ./matlab_outfiles/$myOutfile'
+        wrapperline='matlab -batch "${myCommand%??}${SLURM_JOBID}" | sed -E ":a; s/.\x08//; ta" > ./matlab_outfiles/$myOutfile'
         echo $wrapperline >> RunOnCluster_${jobgroupname}.${ChunkRun}.sh
         
         runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroupname}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroupname}.${ChunkRun}_${groupID}"
