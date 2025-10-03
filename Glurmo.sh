@@ -180,7 +180,7 @@ for arg in "$@"; do
                     break
                 else
                     groupID=$(hexID)
-                    echo "You forget to pass a groupID with the options -I or --groupID. Assigning the groupID this moment\'s hex code: $groupID" 
+                    printf '%s%s%s\n' $'You forget to pass a groupID with the options -I or --groupID. Assigning the groupID this moment\'s hex code: \033[1;31m' "$groupID" $'\033[0m'
                     NoIDFlag=0
                 fi
             else
@@ -204,7 +204,10 @@ if [[ $NoIDFlag -eq 1 ]] && [[ $totalchunks -ne 1 ]]; then
     earlyBreak=1
 elif [[ $NoIDFlag -eq 1 ]] && [[ $totalchunks -eq 1 ]]; then
     groupID=$(hexID)
-    printf '%s%s\n' $'\033[1;31mNo\033[0m groupID was provided, but the variable "\033[1;33mtotalchunks\033[0m" is equal to 1. Assigning it this moment\'s hex code: ' "$groupID"
+    NoGroupIDprefix=$(printf '%s'\
+        $'\033[1;31mNo\033[0m groupID was provided, but the variable "\033[1;33mtotalchunks\033[0m" is equal to 1. Assigning it this moment\'s hex code: \033[1;32m'
+    )
+    printf '%s%s%s\n' "$NoGroupIDprefix" "$groupID" $'\033[0m'
 fi
 
 if [ ! -f ~/easier_slurm_submissions/ParpoolPreamble.m ]; then
@@ -267,7 +270,7 @@ if (( earlyBreak == 0)); then
         checkdir="if [ ! -d ./matlab_outfiles/ ]; then\n\tmkdir matlab_outfiles\nfi"
         echo -e $checkdir >> RunOnCluster_${jobgroupname}.${ChunkRun}.sh 
         
-        wrapperline='matlab -batch "${myCommand%??}${SLURM_JOBID}" | sed -E ":a; s/.\x08//; ta" > ./matlab_outfiles/$myOutfile'
+        wrapperline='matlab -batch "${myCommand%??}${SLURM_JOBID}" > ./matlab_outfiles/$myOutfile'
         echo $wrapperline >> RunOnCluster_${jobgroupname}.${ChunkRun}.sh
         
         runline="WimmyWamWamWozzle -f RunOnCluster_${jobgroupname}.${ChunkRun}.sh -N 1 -n $ntasks -m $mem -t $hours -g $gpus -G $gpuname -j ${jobgroupname}.${ChunkRun}_${groupID}"

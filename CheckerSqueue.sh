@@ -16,7 +16,7 @@ CheckerSqueue () {
         local infoLines=(" ") # First entry is a blank line to create buffer between Usqueue and infoLines
         infoLines+=("# of uncompleted jobs: $numInQueue")
         local removeUnwantedLine=${#infoLines[@]}
-        infoLines+=($'\033[1;33mNOTE\033[0m: Press q or Q to exit.')
+        infoLines+=($'\033[1;33mNOTE\033[0m: Press Q to exit.')
         local numInfoLines=${#infoLines[@]}
 
         if (( numInQueue > 0 )); then
@@ -63,9 +63,11 @@ CheckerSqueue () {
                 (( fullEscape == 1 )) && __clear_lines 0 && printf '%s\n%s\n' "Input: $key" "Exiting squeue monitoring..." && break
             done
         else
-            emptyJobs=$'\033[1;33mWarning:\033[0m There are no jobs running on Unity right now. \
-                Either your script hasn\'t finished submitting them, they\'ve completed already, \
-                or you forgot to submit any.'
+            emptyJobs=$(printf '%s' \
+                $'\033[1;33mWarning:\033[0m There are no jobs running on Unity right now.'\
+                $'Either your script hasn\'t finished submitting them, they\'ve completed already,'\
+                $'or you forgot to submit any.'\
+            )
         fi
     
         if (( fullEscape == 1 )); then
