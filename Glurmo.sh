@@ -207,12 +207,14 @@ elif [[ $NoIDFlag -eq 1 ]] && [[ $totalchunks -eq 1 ]]; then
     NoGroupIDprefix=$(printf '%s'\
         $'\033[1;31mNo\033[0m groupID was provided, but the variable "\033[1;33mtotalchunks\033[0m" is equal to 1. Assigning it this moment\'s hex code: \033[1;32m'
     )
-    printf '%s%s%s\n' "$NoGroupIDprefix" "$groupID" $'\033[0m'
+    closeColoring=$'\033[0m'
+    printf '%s%s%s\n' "$NoGroupIDprefix" "$groupID" "$closeColoring"
 else
     ConfirmGroupID=$(printf '%s'\
-        $'The groupID you passed as an argument is \033[1;32'
+        $'The groupID you passed as an argument is \033[1;32m'
     )
-    printf '%s%s%s\n' "$ConfirmGroupID" "$groupID" $'\033[0m'
+    closeColoring=$'\033[0m'
+    printf '%s%s%s\n' "$ConfirmGroupID" "$groupID" "$closeColoring"
 fi
 
 if [ ! -f ~/easier_slurm_submissions/ParpoolPreamble.m ]; then
