@@ -99,7 +99,16 @@ for arg in "$@"; do
                 echo "An option must be passed when using $arg. Script has been returned."
                 abortSubmission=1; break
             else
-                hours=$option
+                if [[ $option == *.* ]]; then
+                    hours=${option%.*}
+                    decimal="0.${option#*.}"
+                
+                    # Multiply decimal by 60 and round to nearest integer
+                    seconds=$(awk -v d="$decimal" 'BEGIN {print int(d*60 + 0.5)}')
+                else
+                    hours=$option
+                    seconds=0
+                fi
             fi
             ;;
         -j|--jobname)
