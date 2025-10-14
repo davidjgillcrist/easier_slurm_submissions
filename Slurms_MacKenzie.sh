@@ -168,7 +168,7 @@ if (( abortSubmission == 0 )); then
     echo "#SBATCH --ntasks-per-node=$ntasks" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
     echo "#SBATCH --partition=$partition" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
     echo "#SBATCH --mem=${mem}g" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
-    echo "#SBATCH --time=${hours}:00:00" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
+    echo "#SBATCH --time=${hours}:${seconds}:00" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
     echo "#SBATCH --job-name=$jobname" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
     echo -e "#SBATCH --gres=gpu:$gpuname:$gpus\n" >> ~/easier_slurm_submissions/ActualSlurmSubmitter.slurm
     
